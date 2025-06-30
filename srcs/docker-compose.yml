@@ -1,0 +1,101 @@
+services:
+  wordpress:
+    image: wordpress:v1.0
+    build: ./requirements/wordpress
+    container_name: wordpress
+    secrets:
+      - wp_user
+      - wp_pass
+      - wp_admin_user
+      - wp_admin_pass
+      - wp_admin_email
+      - wp_host
+      - wp_url
+      - wp_title
+      - wp_database
+    restart: on-failure
+    volumes:
+      - web:/var/www/html
+    expose:
+      - 9000
+    networks:
+      - inception
+  nginx:
+    image: nginx:v1.0
+    build: ./requirements/nginx
+    container_name: nginx
+    restart: on-failure
+    depends_on:
+      - wordpress
+    ports:
+      - 443:443
+    volumes:
+      - web:/var/www/html
+    networks:
+      - inception
+  mariadb:
+    image: mariadb:v1.0
+    build: ./requirements/mariadb
+    container_name: mariadb
+    secrets:
+      - db_root_password
+      - mysql_user
+      - mysql_host
+      - mysql_pass
+      - mysql_privileges
+      - mysql_database
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    restart: on-failure
+    networks:
+      - inception
+    expose:
+      - 3306
+
+volumes:
+  web:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/fruan-ba/data/web
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/fruan-ba/data/mariadb_data
+networks:
+  inception:
+    driver: bridge
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password/db_root_password
+  wp_user:
+    file: ../secrets/credentials/wp_user
+  wp_pass:
+    file: ../secrets/db_password/wp_pass
+  wp_host:
+    file: ../secrets/credentials/wp_host
+  wp_admin_pass:
+    file: ../secrets/db_password/wp_admin_pass
+  wp_admin_email:
+    file: ../secrets/credentials/wp_admin_email
+  wp_admin_user:
+    file: ../secrets/credentials/wp_admin_user
+  wp_url:
+    file: ../secrets/credentials/wp_url
+  wp_title:
+    file: ../secrets/credentials/wp_title
+  wp_database:
+    file: ../secrets/credentials/wp_database
+  mysql_database:
+    file: ../secrets/credentials/mysql_database
+  mysql_privileges:
+    file: ../secrets/credentials/mysql_privileges
+  mysql_user:
+    file: ../secrets/credentials/mysql_user
+  mysql_pass:
+    file: ../secrets/db_password/mysql_pass
+  mysql_host:
+    file: ../secrets/credentials/mysql_host
