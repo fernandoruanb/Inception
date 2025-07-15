@@ -44,6 +44,8 @@ services:
       - mysql_pass
       - mysql_privileges
       - mysql_database
+      - root_user
+      - root_host
     volumes:
       - mariadb_data:/var/lib/mysql
     restart: on-failure
@@ -69,6 +71,10 @@ networks:
   inception:
     driver: bridge
 secrets:
+  root_user:
+    file: ../secrets/credentials/root_user
+  root_host:
+    file: ../secrets/credentials/root_host
   db_root_password:
     file: ../secrets/db_root_password/db_root_password
   wp_user:
